@@ -1,0 +1,36 @@
+instalar:
+pip install pandas
+pip install fpdf
+
+Para executar: python dsl_interpreter.py
+
+
+Análise de Dados e Exportar para JSON:
+
+Exemplo 1:
+LOAD "dados.csv"
+FILTER "idade" > 30
+SELECT "nome","idade"
+SHOW
+EXPORT_JSON "dados_filtrados.json"
+EXIT
+
+
+Exemplo 2:
+LOAD "vendas.csv"
+FILTER vendedor = "Milton"
+SELECT "produto", "quantidade", "valor"
+EXPORT_JSON "vendas_Milton.json"
+EXIT
+
+
+Join com Outro Arquivo e Remoção de Duplicados:
+
+Exemplo:
+LOAD "clientes.csv"
+JOIN "pedidos.csv" ON "cliente_id"
+REMOVE_DUPLICATES "email"
+SAVE "clientes_unicos.csv"
+EXIT
+
+
