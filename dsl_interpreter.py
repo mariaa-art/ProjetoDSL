@@ -19,7 +19,7 @@ class DSLInterpreter(cmd.Cmd):
         self.command_count += 1
         return line
 
-    # Comandos para Manipulação de CSV
+    # manipulação do CSV
     def do_LOAD(self, arg):
         'LOAD [caminho]: Carrega um arquivo CSV para manipulação.'
         try:
@@ -72,6 +72,55 @@ class DSLInterpreter(cmd.Cmd):
         else:
             print("Nenhum dado carregado. Use o comando LOAD primeiro.")
 
+    def do_GROUP_BY(self, arg):
+        'GROUP_BY [coluna]: Agrupa os dados pela coluna especificada.'
+        if self.data is not None:
+            try:
+                column = arg.strip().strip('"')
+                self.data = self.data.groupby(column).sum().reset_index()
+                print(f"Dados agrupados pela coluna '{column}' com sucesso.")
+            except Exception as e:
+                print(f"Erro ao agrupar os dados: {e}")
+        else:
+            print("Nenhum dado carregado. Use o comando LOAD primeiro.")
+
+    def do_SORT_BY(self, arg):
+        'SORT_BY [coluna] [ordem]: Ordena os dados de acordo com uma coluna específica.'
+        if self.data is not None:
+            try:
+                parts = arg.split()
+                column = parts[0].strip().strip('"')
+                order = parts[1].strip().upper() if len(parts) > 1 else 'ASC'
+                ascending = True if order == 'ASC' else False
+                self.data = self.data.sort_values(by=column, ascending=ascending)
+                print(f"Dados ordenados pela coluna '{column}' em ordem {'ascendente' if ascending else 'descendente'}.")
+            except Exception as e:
+                print(f"Erro ao ordenar os dados: {e}")
+        else:
+            print("Nenhum dado carregado. Use o comando LOAD primeiro.")
+
+    def do_UPDATE(self, arg):
+        'UPDATE [coluna] [novo_valor] WHERE [condição]: Atualiza valores em uma coluna com base em uma condição.'
+        if self.data is not None:
+            try:
+                update_part, condition = arg.split("WHERE")
+                column, new_value_expression = update_part.strip().split("=")
+                column = column.strip().strip('"').strip("'")
+                condition = condition.strip().replace("==", "=").replace("'", "").replace('"', '')
+                condition_column, condition_value = condition.split("=")
+                condition_column = condition_column.strip()
+                condition_value = condition_value.strip()
+                if column == "salario":
+                    self.data[column] = self.data[column].astype(float)
+
+                mask = self.data[condition_column] == condition_value
+                self.data.loc[mask, column] *= 1.1
+                print(f"Valores atualizados na coluna '{column}' onde '{condition_column} == {condition_value}'.")
+            except Exception as e:
+                print(f"Erro ao atualizar os dados: {e}")
+        else:
+            print("Nenhum dado carregado. Use o comando LOAD primeiro.")
+
     def do_SHOW(self, arg):
         'SHOW: Exibe os dados atuais.'
         if self.data is not None:
@@ -102,12 +151,10 @@ class DSLInterpreter(cmd.Cmd):
             other_file = parts[0].strip().strip('"')
             join_column = parts[1].strip().strip('"')
 
-            # Carrega o segundo arquivo e mostra as colunas para verificação
             other_data = pd.read_csv(other_file)
             print(f"Colunas no arquivo '{other_file}': {other_data.columns.tolist()}")
             print(f"Colunas no arquivo principal: {self.data.columns.tolist()}")
 
-            # Realiza o join
             self.data = pd.merge(self.data, other_data, on=join_column, how='inner')
             print(f"Join com '{other_file}' realizado com sucesso na coluna '{join_column}'.")
         except Exception as e:
