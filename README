@@ -13,14 +13,18 @@ FILTER "idade" > 30
 SHOW
 GROUP_BY "cidade"
 SELECT "nome","idade"
+SORT_BY "idade" ASC
+SHOW
+EXPORT_JSON "dados_filtrados.json"
+EXIT
 
 
+Exemplo 1.1:
 LOAD "dados.csv"
+SHOW
 UPDATE "salario" = "salario * 1.1" WHERE "cargo == 'gerente'"
 SHOW
-
-
-EXPORT_JSON "dados_filtrados.json"
+EXPORT_JSON "dados_atualizados.json"
 EXIT
 
 
@@ -28,7 +32,7 @@ Exemplo 2:
 LOAD "vendas.csv"
 FILTER vendedor = "Milton"
 SELECT "produto", "quantidade", "valor"
-SORT_BY "idade" ASC
+SHOW
 EXPORT_JSON "vendas_Milton.json"
 EXIT
 
