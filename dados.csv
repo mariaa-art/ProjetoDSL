@@ -1,6 +1,8 @@
-nome,idade,email
-Ana,28,ana@gmail.com
-Adriel,35,adrielcobol@gmail.com
-Juliana,42,ju@gmail.com
-Maria,52,mariaa@gmail.com
-
+nome,idade,cidade,cargo,salario
+Ana,25,São Paulo,assistente,3000
+Bruno,35,Rio de Janeiro,gerente,7000
+Carla,28,São Paulo,gerente,7500
+Daniel,40,Belo Horizonte,analista,6000
+Elisa,42,São Paulo,gerente,8000
+Felipe,33,Rio de Janeiro,analista,5000
+Giulia,29,São Paulo,assistente,3200
