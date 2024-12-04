@@ -1,30 +1,27 @@
-instalar:
+# DSL para Análise e Edição de Dados em Arquivos CSV
+
+Este projeto implementa uma **DSL (Domain-Specific Language)** para análise e edição de dados em arquivos CSV. A interface de linha de comando permite realizar operações como carregar, filtrar, agrupar, ordenar, atualizar, remover duplicatas e exportar dados, tudo de maneira simplificada.
+
+## Bibliotecas Necessárias
+
 pip install pandas
 pip install fpdf
+pip install tabulate
 
-Para executar: python dsl_interpreter.py
+
+## Para executar: 
+python dsl_interpreter.py
 
 
-Análise de Dados e Exportar para JSON:
+
+**Análise de Dados e Exportar para JSON:**
 
 Exemplo 1:
 LOAD "dados.csv"
 FILTER "idade" > 30
-SHOW
-GROUP_BY "cidade"
 SELECT "nome","idade"
-SORT_BY "idade" ASC
 SHOW
 EXPORT_JSON "dados_filtrados.json"
-EXIT
-
-
-Exemplo 1.1:
-LOAD "dados.csv"
-SHOW
-UPDATE "salario" = "salario * 1.1" WHERE "cargo == 'gerente'"
-SHOW
-EXPORT_JSON "dados_atualizados.json"
 EXIT
 
 
@@ -37,13 +34,12 @@ EXPORT_JSON "vendas_Milton.json"
 EXIT
 
 
-Join com Outro Arquivo e Remoção de Duplicados:
+**Join com Outro Arquivo e Remoção de Duplicados:**
 
 Exemplo:
 LOAD "clientes.csv"
 JOIN "pedidos.csv" ON "cliente_id"
 REMOVE_DUPLICATES "email"
 SAVE "clientes_unicos.csv"
+SHOW
 EXIT
-
-
