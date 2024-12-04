@@ -1,6 +1,10 @@
 import cmd
 import pandas as pd
 import json
+import csv
+import os
+from tabulate import tabulate
+
 
 class DSLInterpreter(cmd.Cmd):
     intro = "Bem-vindo à interface de linha de comando da DSL. Digite 'help' ou '?' para listar os comandos.\n"
@@ -10,16 +14,16 @@ class DSLInterpreter(cmd.Cmd):
 
     def __init__(self):
         super().__init__()
-        self.data = None  
-        self.project = {}  
-        self.last_filter_value = None  
+        self.data = None
+        self.project = {}
+        self.last_filter_value = None
 
     def precmd(self, line):
         self.prompt = f"{self.command_count} > "
         self.command_count += 1
         return line
 
-    # manipulação do CSV
+    # Manipulação do CSV
     def do_LOAD(self, arg):
         'LOAD [caminho]: Carrega um arquivo CSV para manipulação.'
         try:
@@ -38,7 +42,7 @@ class DSLInterpreter(cmd.Cmd):
                         column, value = arg.split(operator, 1)
                         column = column.strip().strip('"').strip("'")
                         value = value.strip().strip('"').strip("'")
-                        
+                       
                         if operator == '=':
                             operator = '=='
 
@@ -49,9 +53,9 @@ class DSLInterpreter(cmd.Cmd):
                         break
                 else:
                     raise ValueError("Operador inválido. Use =, >, <, >=, <= ou !=.")
-                
+               
                 self.data = self.data.query(query_str)
-                self.last_filter_value = value 
+                self.last_filter_value = value
                 print("Dados filtrados com sucesso.")
             except Exception as e:
                 print(f"Erro ao filtrar os dados: {e}")
@@ -103,6 +107,7 @@ class DSLInterpreter(cmd.Cmd):
         'UPDATE [coluna] [novo_valor] WHERE [condição]: Atualiza valores em uma coluna com base em uma condição.'
         if self.data is not None:
             try:
+                # Divida a entrada em duas partes: a parte de atualização e a condição
                 update_part, condition = arg.split("WHERE")
                 column, new_value_expression = update_part.strip().split("=")
                 column = column.strip().strip('"').strip("'")
@@ -110,12 +115,14 @@ class DSLInterpreter(cmd.Cmd):
                 condition_column, condition_value = condition.split("=")
                 condition_column = condition_column.strip()
                 condition_value = condition_value.strip()
-                if column == "salario":
-                    self.data[column] = self.data[column].astype(float)
 
-                mask = self.data[condition_column] == condition_value
-                self.data.loc[mask, column] *= 1.1
-                print(f"Valores atualizados na coluna '{column}' onde '{condition_column} == {condition_value}'.")
+                # Verificar se a coluna existe no DataFrame
+                if column in self.data.columns:
+                    mask = self.data[condition_column] == condition_value
+                    self.data.loc[mask, column] = pd.eval(new_value_expression)  # Avaliando a expressão do novo valor
+                    print(f"Valores atualizados na coluna '{column}' onde '{condition_column} == {condition_value}'.")
+                else:
+                    print(f"Coluna '{column}' não encontrada.")
             except Exception as e:
                 print(f"Erro ao atualizar os dados: {e}")
         else:
@@ -124,7 +131,7 @@ class DSLInterpreter(cmd.Cmd):
     def do_SHOW(self, arg):
         'SHOW: Exibe os dados atuais.'
         if self.data is not None:
-            print(self.data)
+            print(tabulate(self.data, headers='keys', tablefmt='pretty'))  # Exibindo os dados de forma tabular
         else:
             print("Nenhum dado para exibir.")
 
@@ -198,6 +205,7 @@ class DSLInterpreter(cmd.Cmd):
 
     def do_EOF(self, arg):
         return self.do_EXIT(arg)
+
 
 if __name__ == '__main__':
     DSLInterpreter().cmdloop()
